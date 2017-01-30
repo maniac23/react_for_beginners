@@ -8,6 +8,11 @@ var History = ReactRouter.History;
 var createBrowserHistory = require('history/lib/createBrowserHistory');
 var h = require('./helpers');
 
+// Firebase
+var Rebase = require('re-base');
+var base = Rebase.createClass('https://react-for-beginners-82d0e.firebaseio.com/');
+
+
 var App = React.createClass({
   getInitialState: function () {
     return {
@@ -15,6 +20,13 @@ var App = React.createClass({
       order: {}
     }
   },
+  componentDidMount: function () {
+    base.syncState(this.props.params.storeId + '/fishes', {
+      context: this,
+      state: 'fishes'
+    });
+  },
+  
   addToOrder: function (key) {
     this.state.order[key] = this.state.order[key] + 1 || 1;
     this.setState({ order: this.state.order });
