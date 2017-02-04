@@ -5,7 +5,7 @@ var ReactRouter = require('react-router');
 var Router = ReactRouter.Router;
 var Route = ReactRouter.Route;
 var Navigation = ReactRouter.Navigation;
-var History = ReactRouter.History;
+
 var createBrowserHistory = require('history/lib/createBrowserHistory');
 var h = require('./helpers');
 
@@ -14,6 +14,10 @@ var Rebase = require('re-base');
 var base = Rebase.createClass('https://react-for-beginners-82d0e.firebaseio.com/');
 
 var Catalyst = require('react-catalyst');
+
+// import components
+import NotFound from './components/NotFound';
+import StorePicker from './components/StorePicker';
 
 var App = React.createClass({
   mixins: [Catalyst.LinkedStateMixin],
@@ -279,35 +283,6 @@ var Inventory = React.createClass({
     fishes: React.PropTypes.object.isRequired,
     linkState: React.PropTypes.func.isRequired,
     removeFish: React.PropTypes.func.isRequired
-  }
-});
-
-
-var StorePicker = React.createClass({
-  mixins: [History],
-  goToStore: function (event) {
-    event.preventDefault();
-    // get the data from input
-    var storeId = this.refs.storeId.value;
-    // transition from storePicker to app
-    this.history.pushState(null, '/store/' + storeId);
-  },
-  render: function () {
-    return (
-      <form className="store-selector" onSubmit={this.goToStore}>
-        <h2>Please Enter a Store</h2>
-        <input type="text" ref="storeId" defaultValue={h.getFunName()} required />
-        <input type="submit" />
-      </form>
-    );
-  }
-
-});
-
-// if no route was found 
-var NotFound = React.createClass({
-  render: function () {
-    return <h1>404 Not found</h1>
   }
 });
 
