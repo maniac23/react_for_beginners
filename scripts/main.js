@@ -20,6 +20,8 @@ import NotFound from './components/NotFound';
 import StorePicker from './components/StorePicker';
 import Fish from './components/Fish';
 import AddFishForm from './components/AddFishForm';
+import Inventory from './components/Inventory';
+
 
 var App = React.createClass({
   mixins: [Catalyst.LinkedStateMixin],
@@ -192,43 +194,6 @@ var Order = React.createClass({
     fishes: React.PropTypes.object.isRequired,
     order: React.PropTypes.object.isRequired,
     removeFromOrder: React.PropTypes.func.isRequired
-  }
-});
-
-var Inventory = React.createClass({
-  renderInventory: function (key) {
-    var linkState = this.props.linkState;
-    return (
-      <div className="fish-edit" key={key}>
-        <input type="text" valueLink={linkState('fishes.' + key + '.name')} />
-        <input type="text" valueLink={linkState('fishes.' + key + '.price')} />
-        <select valueLink={linkState('fishes.' + key + '.status')}>
-          <option value="unavailable">Sold out!</option>
-          <option value="available">Fresh!</option>
-        </select>
-        <textarea valueLink={linkState('fishes.' + key + '.desc')}></textarea>
-        <input type="text" valueLink={linkState('fishes.' + key + '.image')} />
-        <button onClick={this.props.removeFish.bind(null, key)}>Remove fish</button>
-      </div>
-    )
-  },
-  render: function () {
-    return (
-      <div>
-        <h2>Inventory</h2>
-        {Object.keys(this.props.fishes).map(this.renderInventory)}
-        <AddFishForm {...this.props} />
-        <button onClick={this.props.loadSamples}>Load sample fishes</button>
-      </div>
-    )
-  },
-
-  propTypes: {
-    addFish: React.PropTypes.func.isRequired,
-    loadSamples: React.PropTypes.func.isRequired,
-    fishes: React.PropTypes.object.isRequired,
-    linkState: React.PropTypes.func.isRequired,
-    removeFish: React.PropTypes.func.isRequired
   }
 });
 
