@@ -1,5 +1,6 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
+var CSSTransitionGroup = require('react-addons-css-transition-group');
 var ReactRouter = require('react-router');
 var Router = ReactRouter.Router;
 var Route = ReactRouter.Route;
@@ -16,7 +17,7 @@ var Catalyst = require('react-catalyst');
 
 var App = React.createClass({
   mixins: [Catalyst.LinkedStateMixin],
-  
+
   getInitialState: function () {
     return {
       fishes: {},
@@ -30,7 +31,7 @@ var App = React.createClass({
     });
 
     var localStorageRef = localStorage.getItem('order-' + this.props.params.storeId);
-    
+
     if (localStorageRef) {
       // update our component state to reflect what is in localStorage
       this.setState({
@@ -45,7 +46,7 @@ var App = React.createClass({
   },
 
 
-  
+
   addToOrder: function (key) {
     this.state.order[key] = this.state.order[key] + 1 || 1;
     this.setState({ order: this.state.order });
@@ -53,15 +54,15 @@ var App = React.createClass({
 
   removeFromOrder: function (key) {
     delete this.state.order[key];
-    this.setState({order: this.state.order});
+    this.setState({ order: this.state.order });
   },
-  
+
   addFish: function (fish) {
     var timestamp = (new Date()).getTime();
     // update the state object
     this.state.fishes['fish-' + timestamp] = fish;
     // set the state 
-    this.setState({fishes: this.state.fishes});
+    this.setState({ fishes: this.state.fishes });
   },
 
   removeFish: function (key) {
@@ -80,21 +81,21 @@ var App = React.createClass({
   },
 
   renderFish: function (key) {
-    return <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder}/>
+    return <Fish key={key} index={key} details={this.state.fishes[key]} addToOrder={this.addToOrder} />
   },
-  
+
   render: function () {
     return (
       <div className="catch-of-the-day">
         <div className="menu">
           <Header tagline="Fresh Seafood Market" />
           <ul className="list-of-fihes">
-            {Object.keys(this.state.fishes).map(this.renderFish)}  
+            {Object.keys(this.state.fishes).map(this.renderFish)}
           </ul>
         </div>
         <Order fishes={this.state.fishes} order={this.state.order} removeFromOrder={this.removeFromOrder} />
         <Inventory addFish={this.addFish} loadSamples={this.loadSamples} fishes={this.state.fishes} linkState={this.linkState} removeFish={this.removeFish} />
-      </div>    
+      </div>
     )
   }
 });
@@ -113,7 +114,7 @@ var Fish = React.createClass({
         <img src={details.image} alt={details.name} />
         <h3 className="fish-name">
           {details.name}
-          <span className="price">{h.formatPrice(details.price)}</span>  
+          <span className="price">{h.formatPrice(details.price)}</span>
         </h3>
         <p>{details.desc}</p>
         <button disabled={!isAvailable} onClick={this.onButtonClick}>{buttonText}</button>
@@ -140,7 +141,7 @@ var AddFishForm = React.createClass({
 
   render: function () {
     return (
-      <form className="fish-edit" ref="fishForm" onSubmit= { this.createFish } >
+      <form className="fish-edit" ref="fishForm" onSubmit={this.createFish} >
         <input type="text" ref="name" placeholder="Fish Name" />
         <input type="text" ref="price" placeholder="Fish Price" />
         <select ref="status">
@@ -157,13 +158,13 @@ var AddFishForm = React.createClass({
 
 
 var Header = React.createClass({
-  render: function() {
+  render: function () {
     return (
       <header className="top">
         <h1>Catch
           <span className="ofThe">
-          <span className="of">of</span>
-          <span className="the">the</span>
+            <span className="of">of</span>
+            <span className="the">the</span>
           </span>
           Day</h1>
         <h3 className="tagline"><span>{this.props.tagline}</span></h3>
@@ -180,18 +181,28 @@ var Order = React.createClass({
     if (!fish) {
       return <li key={key}>Sorry, this fish is not available {removeButton}</li>
     }
-    
+
     return (<li key={key}>
-      {count}lbs
+      <span>
+        <CSSTransitionGroup
+          component="span"
+          transitionName="count"
+          transitionLeaveTimeout={250}
+          transitionEnterTimeout={250}
+        >
+          <span key={count}>{count}</span>
+        </ CSSTransitionGroup>
+        lbs
       {fish.name}
+      </span>
       <span className="price">{h.formatPrice(count * fish.price)}</span>
       {removeButton}
     </li>)
   },
-  
+
   render: function () {
     var orderIds = Object.keys(this.props.order);
-    
+
     var total = orderIds.reduce((prevTotal, key) => {
       var fish = this.props.fishes[key];
       var count = this.props.order[key];
@@ -206,13 +217,20 @@ var Order = React.createClass({
     return (
       <div className="order-wrap">
         <h2 className="order-title">Your order</h2>
-        <ul className="order">
-          {orderIds.map(this.renderOrder)}  
+        <CSSTransitionGroup
+          className="order"
+          component="ul"
+          transitionName="order"
+          transitionEnterTimeout={500}
+          transitionLeaveTimeout={500}
+
+        >
+          {orderIds.map(this.renderOrder)}
           <li className="total">
             <strong>Total: </strong>
             {h.formatPrice(total)}
           </li>
-        </ul>
+        </ CSSTransitionGroup>
       </div>
     )
   }
@@ -223,7 +241,7 @@ var Inventory = React.createClass({
     var linkState = this.props.linkState;
     return (
       <div className="fish-edit" key={key}>
-        <input type="text" valueLink={linkState('fishes.'+ key + '.name')}/>
+        <input type="text" valueLink={linkState('fishes.' + key + '.name')} />
         <input type="text" valueLink={linkState('fishes.' + key + '.price')} />
         <select valueLink={linkState('fishes.' + key + '.status')}>
           <option value="unavailable">Sold out!</option>
@@ -249,7 +267,7 @@ var Inventory = React.createClass({
 
 
 var StorePicker = React.createClass({
-  mixins : [History],
+  mixins: [History],
   goToStore: function (event) {
     event.preventDefault();
     // get the data from input
@@ -257,11 +275,11 @@ var StorePicker = React.createClass({
     // transition from storePicker to app
     this.history.pushState(null, '/store/' + storeId);
   },
-  render: function() {
+  render: function () {
     return (
       <form className="store-selector" onSubmit={this.goToStore}>
-        <h2>Please Enter a Store</h2> 
-        <input type="text" ref="storeId" defaultValue={h.getFunName()} required/>
+        <h2>Please Enter a Store</h2>
+        <input type="text" ref="storeId" defaultValue={h.getFunName()} required />
         <input type="submit" />
       </form>
     );
@@ -271,7 +289,7 @@ var StorePicker = React.createClass({
 
 // if no route was found 
 var NotFound = React.createClass({
-  render: function() {
+  render: function () {
     return <h1>404 Not found</h1>
   }
 });
@@ -279,9 +297,9 @@ var NotFound = React.createClass({
 // routes
 var routes = (
   <Router history={createBrowserHistory()}>
-    <Route path="/" component={StorePicker}/>
-    <Route path="store/:storeId" component={App}/>
-    <Route path="*" component={NotFound}/>
+    <Route path="/" component={StorePicker} />
+    <Route path="store/:storeId" component={App} />
+    <Route path="*" component={NotFound} />
   </Router>
 );
 
